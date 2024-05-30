@@ -29,27 +29,23 @@ version 1.0
 ## for detailed licensing information pertaining to the included programs.
 
 import "./fastq-to-ubam.wdl" as fq2ubam
-import "../structs/structs.wdl" as structs
+import "./structs.wdl" as structs
 
 # WORKFLOW DEFINITION
 workflow PreProcessingForVariantDiscovery_GATK4 {
   input {
     String sample_name
-
     Array[FastqPair] fastq_pairs
     String unmapped_bam_suffix = ".bam"
-
     Int compression_level = 2
-
     String ecr_registry
     String gatk_path = "/gatk/gatk"
     String gotc_path = "/usr/gitc/"
-    
     String aws_region
   }
 
+  # Reference files
   String src_bucket_name = "omics-" + aws_region
-  
   String ref_name = "hg38"
   File ref_fasta = "s3://" + src_bucket_name + "/broad-references/hg38/v0/Homo_sapiens_assembly38.fasta"
   File ref_fasta_index = "s3://" + src_bucket_name + "/broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai"
@@ -62,24 +58,24 @@ workflow PreProcessingForVariantDiscovery_GATK4 {
   File ref_amb = "s3://" + src_bucket_name + "/broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.amb"
   File dbSNP_vcf = "s3://" + src_bucket_name + "/broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf"
   File dbSNP_vcf_index = "s3://" + src_bucket_name + "/broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf.idx"
+  
   Array[File] known_indels_sites_VCFs = [
-                                        "s3://" + src_bucket_name + "/broad-references/hg38/v0/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz",
-                                        "s3://" + src_bucket_name + "/broad-references/hg38/v0/Homo_sapiens_assembly38.known_indels.vcf.gz"
-                                        ]
+    "s3://" + src_bucket_name + "/broad-references/hg38/v0/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz",
+    "s3://" + src_bucket_name + "/broad-references/hg38/v0/Homo_sapiens_assembly38.known_indels.vcf.gz"
+  ]
   Array[File] known_indels_sites_indices = [
-                                            "s3://" + src_bucket_name + "/broad-references/hg38/v0/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz.tbi",
-                                            "s3://" + src_bucket_name + "/broad-references/hg38/v0/Homo_sapiens_assembly38.known_indels.vcf.gz.tbi"
-                                            ]
+    "s3://" + src_bucket_name + "/broad-references/hg38/v0/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz.tbi",
+    "s3://" + src_bucket_name + "/broad-references/hg38/v0/Homo_sapiens_assembly38.known_indels.vcf.gz.tbi"
+  ]
 
-
+  # Docker Images Needed - these are deployed via ./scripts
   String gatk_docker = ecr_registry + "/ecr-public/aws-genomics/broadinstitute/gatk:4.2.6.1-corretto-11"
   String gotc_docker = ecr_registry + "/ecr-public/aws-genomics/broadinstitute/genomes-in-the-cloud:2.5.7-2021-06-09_16-47-48Z-corretto-11"
   String python_docker = ecr_registry + "/ecr-public/docker/library/python:3.9"
   String base_file_name = sample_name + "." + ref_name
 
 
-  # Get the version of BWA to include in the PG record in the header of the BAM produced
-  # by MergeBamAlignment.
+  # Get the version of BWA to include in the PG record in the header of the BAM produced by MergeBamAlignment.
   call GetBwaVersion {
     input:
       docker_image = gotc_docker,
@@ -87,6 +83,7 @@ workflow PreProcessingForVariantDiscovery_GATK4 {
   }
 
   String bwa_commandline = "bwa mem -K 100000000 -v 3 -t 14 -Y $bash_ref_fasta"
+
   # Align flowcell-level fastqs in parallel
   scatter (fastq_pair in fastq_pairs) {
     call fq2ubam.ConvertPairedFastQsToUnmappedBamWf as fq2ubam {

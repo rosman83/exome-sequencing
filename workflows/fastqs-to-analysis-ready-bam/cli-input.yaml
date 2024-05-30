@@ -1,3 +1,0 @@
-engine: WDL
-name: fastqs-to-analysis-ready-bam
-main: main.wdl
