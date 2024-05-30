@@ -1,0 +1,7 @@
+{
+    "container_puller": {
+        "source_aws_accounts": [
+            "339712841657"
+        ]
+    }
+}
