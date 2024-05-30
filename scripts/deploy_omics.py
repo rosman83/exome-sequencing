@@ -4,6 +4,8 @@ import boto3
 import botocore.exceptions
 import json
 
+from botocore.config import Config
+
 def create_omics_client():
     omics_iam_name = "OmicsServiceRole"
     iam = boto3.resource("iam")
@@ -77,14 +79,14 @@ def create_omics_client():
                 "Something went wrong, please retry and check your account settings and permissions"
             )
 
-    region = boto3.session.Session().region_name
-    omics = boto3.client('omics', region_name=region)
+    # region = boto3.session.Session().region_name
+    omics = boto3.client('omics', region_name='us-east-1')
     
     return omics
 
 # Create S3 client
 def create_s3_client():
-    s3c = boto3.client('s3')
+    s3c = boto3.client('s3', region_name='us-east-1')
     return s3c
 
 # create s3 bucket and if exists return staging url

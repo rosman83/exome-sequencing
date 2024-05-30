@@ -44,7 +44,6 @@ def bundle_workflow(
 
 
 def build_workflow(omics, s3c, cfg, workflow_name) -> None:
-
     # create zip file
     buffer = bundle_workflow(workflow_name, f"workflows/{workflow_name}")
 
