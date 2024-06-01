@@ -88,18 +88,6 @@ def create_bucket(bucket_name):
 
 create_bucket(bucket)
 
-# Create ECR repository and grab images using state function
-# basically aws stepfunctions start-execution \
-#   --state-machine-arn arn:aws:states:<aws-region>:<aws-account-id>:stateMachine:omx-container-puller \
-#   --input file://container_pull_manifest.json
-# but using boto3
-repo_name = 
-def create_ecr_repo(repo_name):
-    try:
-        ecr_client.create_repository(repositoryName=repo_name)
-        logger.info("Created ECR repository {}.", repo_name)
-    except ecr_client.exceptions.RepositoryAlreadyExistsException:
-        logger.info("ECR repository {} already exists, skipping creation.", repo_name)
 
 # Build and upload workflow to AWS
 def bundle_workflow(
