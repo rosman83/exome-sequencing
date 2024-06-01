@@ -27,5 +27,7 @@ workflow FastqsToAnalysisReadyBam {
         File analysis_ready_bam = PreProcessingForVariantDiscovery_GATK4.analysis_ready_bam
         File analysis_ready_bam_index = PreProcessingForVariantDiscovery_GATK4.analysis_ready_bam_index
         File analysis_ready_bam_md5 = PreProcessingForVariantDiscovery_GATK4.analysis_ready_bam_md5
+        File output_vcf = PreProcessingForVariantDiscovery_GATK4.output_vcf
+        File output_vcf_index = PreProcessingForVariantDiscovery_GATK4.output_vcf_index
     }
 }

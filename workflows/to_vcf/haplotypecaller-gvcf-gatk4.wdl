@@ -31,7 +31,7 @@ workflow HaplotypeCallerGvcf_GATK4 {
         String ecr_registry
         String aws_region
     }
-
+    
     String src_bucket_name = "omics-" + aws_region
 
     File ref_dict="s3://" + src_bucket_name + "/broad-references/hg38/v0/Homo_sapiens_assembly38.dict"
