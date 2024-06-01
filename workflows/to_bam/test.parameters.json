@@ -1,30 +1,11 @@
 {
-    "sample_name": "ERR194159-30x",
-    "fastq_pairs": [
-      {
-        "read_group": "C0L01ACXX.1",
-        "fastq_1": "s3://omics-us-east-1/sample-inputs/3768383/C0L01ACXX.1.5-percent.R1.fastq.gz",
-        "fastq_2": "s3://omics-us-east-1/sample-inputs/3768383/C0L01ACXX.1.5-percent.R2.fastq.gz",
-        "platform": "illumina"
-      },
-      {
-        "read_group": "C0L01ACXX.2",
-        "fastq_1": "s3://omics-us-east-1/sample-inputs/3768383/C0L01ACXX.2.5-percent.R1.fastq.gz",
-        "fastq_2": "s3://omics-us-east-1/sample-inputs/3768383/C0L01ACXX.2.5-percent.R2.fastq.gz",
-        "platform": "illumina"
-      },
-      {
-        "read_group": "C0L01ACXX.3",
-        "fastq_1": "s3://omics-us-east-1/sample-inputs/3768383/C0L01ACXX.3.5-percent.R1.fastq.gz",
-        "fastq_2": "s3://omics-us-east-1/sample-inputs/3768383/C0L01ACXX.3.5-percent.R2.fastq.gz",
-        "platform": "illumina"
-      },
-      {
-        "read_group": "C0M7LACXX.7",
-        "fastq_1": "s3://omics-us-east-1/sample-inputs/3768383/C0M7LACXX.7.5-percent.R1.fastq.gz",
-        "fastq_2": "s3://omics-us-east-1/sample-inputs/3768383/C0M7LACXX.7.5-percent.R2.fastq.gz",
-        "platform": "illumina"
-      }
-    ]
-  }
-  
+  "sample_name": "ERR194159-30x",
+  "fastq_pairs": [
+    {
+      "read_group": "C0L01ACXX.1",
+      "fastq_1": "s3://omics-staging/samples/demo/COLO1ACXX.1.5-percent.R1_short.fastq.gz",
+      "fastq_2": "s3://omics-staging/samples/demo/COLO1ACXX.1.5-percent.R2_short.fastq.gz",
+      "platform": "illumina"
+    }
+  ]
+}

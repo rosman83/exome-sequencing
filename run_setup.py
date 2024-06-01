@@ -35,6 +35,9 @@ logger.info("Configuration file loaded.")
 sts_client = boto3.client("omics", region)
 iam_client = boto3.client("iam", region)
 s3_client = boto3.client("s3", region)
+stepfunctions_client = boto3.client("stepfunctions", region)
+ecr_client = boto3.client("ecr", region)
+
 
 # Create AWS role with healthomics and administrator access if role does not exist by name checking
 def create_role(role_name):
@@ -68,19 +71,15 @@ def create_role(role_name):
 
 create_role(role)
 
+
 # Automate image ECR Repo creation
 # TODO: FIX ECR REPO NOT BEING CREATED
-
-# Create S3 bucket if it does not exist
-# TODO: FIX S3 BUCKET NOT BEING CREATED
 def create_bucket(bucket_name):
     try:
-        print(bucket_name)
         s3_client.head_bucket(Bucket=bucket_name)
         logger.info("S3 bucket {} already exists, skipping creation.", bucket_name)
         return bucket_name
     except botocore.exceptions.ClientError as e:
-        print(bucket_name)
         error_code = int(e.response["Error"]["Code"])
         if error_code == 404:
             s3_client.create_bucket(Bucket=bucket_name)
@@ -88,6 +87,19 @@ def create_bucket(bucket_name):
             return bucket_name
 
 create_bucket(bucket)
+
+# Create ECR repository and grab images using state function
+# basically aws stepfunctions start-execution \
+#   --state-machine-arn arn:aws:states:<aws-region>:<aws-account-id>:stateMachine:omx-container-puller \
+#   --input file://container_pull_manifest.json
+# but using boto3
+repo_name = 
+def create_ecr_repo(repo_name):
+    try:
+        ecr_client.create_repository(repositoryName=repo_name)
+        logger.info("Created ECR repository {}.", repo_name)
+    except ecr_client.exceptions.RepositoryAlreadyExistsException:
+        logger.info("ECR repository {} already exists, skipping creation.", repo_name)
 
 # Build and upload workflow to AWS
 def bundle_workflow(
@@ -107,10 +119,15 @@ def bundle_workflow(
 
     return buffer
 
-def build_workflow() -> None:
-    workflow_name = "to_bam"
-    exising_workflows = sts_client.list_workflows()
-    workflow_names = [item["name"] for item in exising_workflows["items"]]
+
+# return the workflow id
+workflow_name = "to_bam"
+
+
+def build_workflow():
+    existing_workflows = sts_client.list_workflows()
+    workflow_names = [item.get("name") for item in existing_workflows["items"]]
+
     if workflow_name in workflow_names:
         logger.info(f"Workflow {workflow_name} already exists, skipping creation.")
         return
@@ -119,7 +136,7 @@ def build_workflow() -> None:
     buffer.seek(0, 2)
     definition_uri = None
     if buffer.tell() / 1024.0 > 4.0:
-        staging_uri = bucket
+        staging_uri = f"s3://{bucket}"
         definition_uri = urlparse(
             "/".join([staging_uri, f"bundle-{workflow_name}.zip"])
         )
@@ -146,11 +163,51 @@ def build_workflow() -> None:
         path = f"build/workflow-{workflow_name}"
         with open(path, "w") as f:
             json.dump(obj, f, indent=4, default=str)
-            
+
     except botocore.exceptions.WaiterError as e:
         response = sts_client.get_workflow(id=workflow_id)
         cause = response["statusMessage"]
         logger.error(f"Encountered the following error: {e}\n\nCause:\n{cause}")
         raise RuntimeError
 
-build_workflow()
+    return workflow_id
+
+
+workflow_id = build_workflow()
+logger.info(f"Workflow {workflow_name} created with id {workflow_id}")
+
+
+# start a run of the workflow
+def start_run() -> None:
+    with open(f"workflows/{workflow_name}/test.parameters.json", "r") as f:
+        test_parameters = f.read()
+    test_parameters = test_parameters.replace("{{region}}", region)
+    test_parameters = test_parameters.replace("{{staging_uri}}", bucket)
+    test_parameters = test_parameters.replace(
+        "{{account_id}}", aws_config["account_id"]
+    )
+    test_parameters = json.loads(test_parameters)
+    test_parameters |= {"aws_region": region}
+    role_arn = aws_config["role"]
+    try:
+        role = iam_client.get_role(RoleName=role_arn)
+        role_arn = role["Role"]["Arn"]
+    except iam_client.exceptions.NoSuchEntityException:
+        raise RuntimeError(f"Role {role_arn} not found")
+    ecr_registry = f"{aws_config['account_id']}.dkr.ecr.{region}.amazonaws.com"
+    test_parameters |= {"ecr_registry": ecr_registry}
+    run = sts_client.start_run(
+        workflowId=workflow_id,
+        name=f"test: {workflow_name}",
+        roleArn=role_arn,
+        outputUri=f"s3://{bucket}",
+        parameters=test_parameters,
+    )
+    logger.success(f"Successfully started run '{run['id']}'")
+    check_command = f"aws omics get-run --id {run['id']} --region {region}"
+    logger.info(f"Run details: {run}")
+    logger.info(f"Using parameters: {test_parameters}")
+    logger.info(f"Check run status with: {check_command}")
+
+
+start_run()

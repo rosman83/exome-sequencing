@@ -4,15 +4,41 @@ Workflow to carry out exome sequencing through AWS HealthOmics - specifically fo
 
 ## quickstart
 
+### Docker Images Setup
+
 **Ensure that you have the following prerequesites on your PC:**
 - Python 3.12.*
 - PDM (Python dependency Manager)
 - AWS CLI (Command Line Interface)
 - AWS CDK (Cloud Development Kit)
 
-These instructions currently assume you have grabbed all needed docker images to the omics container following [these steps](https://github.com/aws-samples/amazon-ecr-helper-for-aws-healthomics). **Instructions to do this or a helper script will be created soon.**
+1. These instructions currently assume you have grabbed all needed docker images to the omics container following [these steps](https://github.com/aws-samples/amazon-ecr-helper-for-aws-healthomics). **Instructions to do this or a helper script will be created soon.**
+2. The images required for the tool are ready for pushing through the ECR helper in `docker/container_pull_manifest.json`.
+3. Once the repositories can be seen in Amazon Elastic Container Registry -> Private Repositories, in your AWS console dashboard, select each image that matches those uploaded from container_pull_manifest.json, and go to Actions -> Permissions and add the following permissions policy for each image.
 
-The images required are ready for pushing through the ECR helper in `docker/container_pull_manifest.json`.
+```
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "omics workflow",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "omics.amazonaws.com"
+      },
+      "Action": [
+        "ecr:BatchCheckLayerAvailability",
+        "ecr:BatchGetImage",
+        "ecr:GetDownloadUrlForLayer"
+      ]
+    }
+  ]
+}
+```
+
+We are now ready to proceed with healthomics and running workflows.
+
+### Healthomics Setup
 
 ```
 # Setup repository and libraries
@@ -22,12 +48,8 @@ pdm install && pdm update
 
 # ensure that you fill out config.toml properly
 ...
-
-# Upload workflows, setup S3, permissions, AWS
+# Setup AWS -> Upload and run workflow
 pdm run run_setup.py
-
-# Run the workflow given test parameters in workflows/{{name}}/test.parameters.json
-pdm run run_task.py
 ```
 
 ## the general idea

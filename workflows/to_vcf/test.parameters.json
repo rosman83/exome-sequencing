@@ -1,4 +1,0 @@
-{
-    "input_bam": "s3://omics-us-east-1/sample-inputs/5454617/ERR194159.hg38.5-percent.bam",
-    "input_bam_index": "s3://omics-us-east-1/sample-inputs/5454617/ERR194159.hg38.5-percent.bai"
-  }
