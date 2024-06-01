@@ -1,0 +1,21 @@
+# Configuration for exome sequencing
+# - we handle both the setup and workflow related configuration here
+
+[aws]
+# IAM Service Role Name
+# - this is the name of the IAM service role with the permissions to run the workflow, if a role with this name does not exist, the program will automatically create it.
+role = "OmicsServiceRole"
+
+# AWS Region
+# - the region where the s3 bucket and the workflow will be run, everything must be in the same region across all AWS services. Make sure S3, ECR Container, and Healthomics container are all in this same region.
+region = "us-east-1"
+
+# S3 Bucket Name
+# - the name of the S3 bucket where the input data and the output data will be stored. If the bucket does not exist, the program will automatically create it. This should be in the format "s3://bucket-name"/.../..." where "bucket-name" is the name of the bucket.
+bucket = "omics-output"
+
+# NOT SURE IF NEEDED
+
+# Account ID for the AWS account
+# - this can be found in the dashboard by clicking on the account name in the top right corner and looking at the dropdown. It is the 12 digit number without dashes.
+account_id = "123456789012"

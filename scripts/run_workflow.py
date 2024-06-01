@@ -42,7 +42,6 @@ def bundle_workflow(
 
     return buffer
 
-
 def build_workflow(omics, s3c, cfg, workflow_name) -> None:
     # create zip file
     buffer = bundle_workflow(workflow_name, f"workflows/{workflow_name}")
@@ -97,7 +96,6 @@ def build_workflow(omics, s3c, cfg, workflow_name) -> None:
         print(f"Encountered the following error: {e}\n\nCause:\n{cause}")
 
         raise RuntimeError
-
 
 # workflow running
 
