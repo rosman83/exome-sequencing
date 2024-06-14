@@ -17,28 +17,29 @@ workflow PreProcessingForVariantDiscovery_GATK4 {
   }
 
   # Reference files
-  String src_bucket_name = "omics-" + aws_region
-  String ref_name = "hg38"
-  File ref_fasta = "s3://" + src_bucket_name + "/broad-references/hg38/v0/Homo_sapiens_assembly38.fasta"
-  File ref_fasta_index = "s3://" + src_bucket_name + "/broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.fai"
-  File ref_dict = "s3://" + src_bucket_name + "/broad-references/hg38/v0/Homo_sapiens_assembly38.dict"
-  File ref_alt = "s3://" + src_bucket_name + "/broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.alt"
-  File ref_sa = "s3://" + src_bucket_name + "/broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.sa"
-  File ref_ann = "s3://" + src_bucket_name + "/broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.ann"
-  File ref_bwt = "s3://" + src_bucket_name + "/broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.bwt"
-  File ref_pac = "s3://" + src_bucket_name + "/broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.pac"
-  File ref_amb = "s3://" + src_bucket_name + "/broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.amb"
-  File dbSNP_vcf = "s3://" + src_bucket_name + "/broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf"
-  File dbSNP_vcf_index = "s3://" + src_bucket_name + "/broad-references/hg38/v0/Homo_sapiens_assembly38.dbsnp138.vcf.idx"
+  String src_bucket_name = "omics-staging"
+  String ref_name = "mm39"
+  File ref_fasta = "s3://" + src_bucket_name + "/reference/Mus_musculus.GRCm39.dna.toplevel.fa"
+  File ref_fasta_index = "s3://" + src_bucket_name + "/reference/Mus_musculus.GRCm39.dna.toplevel.fa.fai"
+  File ref_dict = "s3://" + src_bucket_name + "/reference/Mus_musculus.GRCm39.dna.toplevel.dict"
+  # File ref_alt = "s3://" + src_bucket_name + "/broad-references/hg38/v0/Homo_sapiens_assembly38.fasta.64.alt" # ERROR: CANNOT FIND
+  File ref_sa = "s3://" + src_bucket_name + "/reference/Mus_musculus.GRCm39.dna.toplevel.fa.sa"
+  File ref_ann = "s3://" + src_bucket_name + "/reference/Mus_musculus.GRCm39.dna.toplevel.fa.ann"
+  File ref_bwt = "s3://" + src_bucket_name + "/reference/Mus_musculus.GRCm39.dna.toplevel.fa.bwt"
+  File ref_pac = "s3://" + src_bucket_name + "/reference/Mus_musculus.GRCm39.dna.toplevel.fa.pac"
+  File ref_amb = "s3://" + src_bucket_name + "/reference/Mus_musculus.GRCm39.dna.toplevel.fa.amb"
+
+  File dbSNP_vcf = "s3://" + src_bucket_name + "/reference/mgp_REL2021_snps.rsID.vcf.gz"
+  File dbSNP_vcf_index = "s3://" + src_bucket_name + "/reference/mgp_REL2021_snps.rsID.vcf.gz.tbi" 
   
+  # Replace with RSID version later...
   Array[File] known_indels_sites_VCFs = [
-    "s3://" + src_bucket_name + "/broad-references/hg38/v0/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz",
-    "s3://" + src_bucket_name + "/broad-references/hg38/v0/Homo_sapiens_assembly38.known_indels.vcf.gz"
+    "s3://" + src_bucket_name + "/reference/mgp_REL2021_indels.vcf.gz", 
   ]
   Array[File] known_indels_sites_indices = [
-    "s3://" + src_bucket_name + "/broad-references/hg38/v0/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz.tbi",
-    "s3://" + src_bucket_name + "/broad-references/hg38/v0/Homo_sapiens_assembly38.known_indels.vcf.gz.tbi"
+    "s3://" + src_bucket_name + "/reference/mgp_REL2021_indels.vcf.gz.tbi",
   ]
+
 
   # Docker Images Needed - these are deployed via ./scripts
   String gatk_docker = ecr_registry + "/ecr-public/aws-genomics/broadinstitute/gatk:4.2.6.1-corretto-11"
@@ -80,7 +81,7 @@ workflow PreProcessingForVariantDiscovery_GATK4 {
         ref_fasta = ref_fasta,
         ref_fasta_index = ref_fasta_index,
         ref_dict = ref_dict,
-        ref_alt = ref_alt,
+        # ref_alt = ref_alt,
         ref_sa = ref_sa,
         ref_ann = ref_ann,
         ref_bwt = ref_bwt,
@@ -244,6 +245,7 @@ task GetBwaVersion {
 }
 
 task BwaMemAlign {
+  # TODO: ENSURE ALT FILE IS OPTIONAL HERE
   # This is the .alt file from bwa-kit (https://github.com/lh3/bwa/tree/master/bwakit),
   # listing the reference contigs that are "alternative". Leave blank in JSON for legacy
   # references such as b37 and hg19.
@@ -254,7 +256,7 @@ task BwaMemAlign {
     File ref_fasta
     File ref_fasta_index
     File ref_dict
-    File? ref_alt
+    # File? ref_alt
     File ref_amb
     File ref_ann
     File ref_bwt
@@ -281,7 +283,7 @@ task BwaMemAlign {
     set -x
     ~{bwa_path}~{bwa_commandline} ~{input_fastq_pair.fastq_1} ~{input_fastq_pair.fastq_2} \
     | \
-    samtools view -@ 4 -1 - > ~{output_bam_basename}.bam
+    samtools view -b -F 4 -@ 4 -1 - > ~{output_bam_basename}.bam
   }
   runtime {
     docker: docker_image

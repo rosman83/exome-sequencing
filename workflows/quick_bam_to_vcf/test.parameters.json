@@ -1,0 +1,6 @@
+{
+    "input_bam": "s3://omics-staging/bam/100M1-30x.mm39.bam",
+    "input_bam_index": "s3://omics-staging/bam/100M1-30x.mm39.bai",
+    "aws_region": "us-east-1",
+    "ecr_registry": "339712841657.dkr.ecr.us-east-1.amazonaws.com"
+  }

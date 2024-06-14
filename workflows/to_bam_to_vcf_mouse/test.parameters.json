@@ -1,0 +1,13 @@
+{
+  "sample_name": "100M1-30x",
+  "fastq_pairs": [
+    {
+      "read_group": "100M1-30x",
+      "fastq_1": "s3://omics-staging/samples/demo/100M1_1.trim.fastq.gz",
+      "fastq_2": "s3://omics-staging/samples/demo/100M1_2.trim.fastq.gz",
+      "platform": "illumina"
+    }
+  ],
+  "aws_region": "us-east-1",
+  "ecr_registry": "339712841657.dkr.ecr.us-east-1.amazonaws.com"
+}

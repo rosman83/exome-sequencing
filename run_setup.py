@@ -109,7 +109,7 @@ def bundle_workflow(
 
 
 # return the workflow id
-workflow_name = "to_bam"
+workflow_name = "quick_bam_to_vcf"
 
 
 def build_workflow():
