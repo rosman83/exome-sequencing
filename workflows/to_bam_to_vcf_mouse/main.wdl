@@ -1,4 +1,5 @@
 version 1.0
+import "./structs.wdl" as structs
 
 workflow FQtoVCF {
   # INPUTS --------------------------------------------------
@@ -44,10 +45,10 @@ workflow FQtoVCF {
     call PairedFastQsToUnmappedBAM {
       input:
         sample_name = sample_name,
-        fastq_1 = fastq_1,
-        fastq_2 = fastq_2,
-        readgroup_name = readgroup_name,
-        platform = platform,
+        platform = fastq_pair.platform,
+        fastq_1 = fastq_pair.fastq_1,
+        fastq_2 = fastq_pair.fastq_2,
+        readgroup_name = fastq_pair.read_group,
         gatk_path = gatk_path,
         docker = gatk_docker
     }
@@ -117,12 +118,6 @@ workflow FQtoVCF {
       docker_image = python_docker,
   }
 
-  call CreateSequenceGroupingTSV {
-    input:
-      ref_dict = ref_dict,
-      docker_image = python_docker,
-  }
-
   scatter (subgroup in CreateSequenceGroupingTSV.sequence_grouping) {
     # Generate the recalibration model by interval
     call BaseRecalibrator {
@@ -182,7 +177,7 @@ workflow FQtoVCF {
   Boolean make_gvcf = true
   Boolean make_bamout = false
   String utils_docker = ecr_registry + "/ecr-public/ubuntu/ubuntu:20.04"
-  String sample_basename = basename(input_bam, ".bam")
+  String sample_basename = basename(GatherBamFiles.output_bam, ".bam")
   String vcf_basename = sample_basename
   String output_suffix = if make_gvcf then ".g.vcf.gz" else ".vcf.gz"
   String output_filename = vcf_basename + output_suffix

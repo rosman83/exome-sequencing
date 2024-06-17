@@ -2,6 +2,7 @@
 import glob
 import io
 import os
+import time
 from urllib.parse import urlparse
 from zipfile import ZIP_DEFLATED, ZipFile
 from loguru import logger
@@ -109,7 +110,7 @@ def bundle_workflow(
 
 
 # return the workflow id
-workflow_name = "quick_bam_to_vcf"
+workflow_name = "to_bam_to_vcf_mouse"
 
 
 def build_workflow():
@@ -197,5 +198,46 @@ def start_run() -> None:
     logger.info(f"Using parameters: {test_parameters}")
     logger.info(f"Check run status with: {check_command}")
 
+# version that starts a run looping over parameters.json files in an input folder
+# input folder is in workflows/{workflow_name}/input
+input_folder = f"workflows/{workflow_name}/inputs"
+def start_runs() -> None:
+    for filename in os.listdir(input_folder):
+        if filename.endswith(".parameters.json"):
+            with open(os.path.join(input_folder, filename), "r") as f:
+                test_parameters = f.read()
+            
+            test_parameters = test_parameters.replace("{{region}}", region)
+            test_parameters = test_parameters.replace("{{staging_uri}}", bucket)
+            test_parameters = test_parameters.replace(
+                "{{account_id}}", aws_config["account_id"]
+            )
+            test_parameters = json.loads(test_parameters)
+            sample_name = test_parameters["sample_name"]
+            test_parameters |= {"aws_region": region}
+            role_arn = aws_config["role"]
 
-start_run()
+            try:
+                role = iam_client.get_role(RoleName=role_arn)
+                role_arn = role["Role"]["Arn"]
+            except iam_client.exceptions.NoSuchEntityException:
+                raise RuntimeError(f"Role {role_arn} not found")
+            ecr_registry = f"{aws_config['account_id']}.dkr.ecr.{region}.amazonaws.com"
+            test_parameters |= {"ecr_registry": ecr_registry}
+            run = sts_client.start_run(
+                workflowId=workflow_id,
+                name=f"test: {workflow_name} - {sample_name}",
+                roleArn=role_arn,
+                outputUri=f"s3://{bucket}",
+                parameters=test_parameters,
+            )
+            logger.success(f"Successfully started run '{run['id']} for sample '{sample_name}")
+            check_command = f"aws omics get-run --id {run['id']} --region {region}"
+            logger.info(f"Run details: {run}")
+            logger.info(f"Using parameters: {test_parameters}")
+            logger.info(f"Check run status with: {check_command}")
+            # WAIT 10 SEC BEFORE STARTING THE NEXT RUN
+            time.sleep(10)
+
+# start_run()
+start_runs()

@@ -1,0 +1,13 @@
+{
+  "sample_name": "MOC_A",
+  "fastq_pairs": [
+    {
+      "read_group": "MOC_A",
+      "fastq_1": "s3://omics-staging/samples/MOC_A/MOC1_CONTROL_A_1.trim.fastq.gz",
+      "fastq_2": "s3://omics-staging/samples/MOC_A/MOC1_CONTROL_A_2.trim.fastq.gz",
+      "platform": "illumina"
+    }
+  ],
+  "aws_region": "us-east-1",
+  "ecr_registry": "339712841657.dkr.ecr.us-east-1.amazonaws.com"
+}

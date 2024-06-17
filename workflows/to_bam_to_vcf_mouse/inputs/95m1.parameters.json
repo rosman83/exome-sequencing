@@ -1,0 +1,13 @@
+{
+  "sample_name": "95M1",
+  "fastq_pairs": [
+    {
+      "read_group": "95M1",
+      "fastq_1": "s3://omics-staging/samples/95M1/95M1X5M2_1.trim.fastq.gz",
+      "fastq_2": "s3://omics-staging/samples/95M1/95M1X5M2_2.trim.fastq.gz",
+      "platform": "illumina"
+    }
+  ],
+  "aws_region": "us-east-1",
+  "ecr_registry": "339712841657.dkr.ecr.us-east-1.amazonaws.com"
+}
