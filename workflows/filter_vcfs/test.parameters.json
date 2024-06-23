@@ -1,0 +1,6 @@
+{
+    "input_vcf_path": "s3://omics-staging/reference/mgp_REL2021_snps.rsID.vcf.gz",
+    "input_vcf_index_path": "s3://omics-staging/reference/mgp_REL2021_snps.rsID.vcf.gz.csi",
+    "aws_region": "us-east-1",
+    "ecr_registry": "339712841657.dkr.ecr.us-east-1.amazonaws.com"
+  }

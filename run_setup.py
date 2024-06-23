@@ -110,8 +110,8 @@ def bundle_workflow(
 
 
 # return the workflow id
-workflow_name = "to_bam_to_vcf_mouse"
-
+workflow_name = "filter_vcfs"
+batch = False
 
 def build_workflow():
     existing_workflows = sts_client.list_workflows()
@@ -239,5 +239,7 @@ def start_runs() -> None:
             # WAIT 10 SEC BEFORE STARTING THE NEXT RUN
             time.sleep(10)
 
-# start_run()
-start_runs()
+if batch:
+    start_runs()
+else:
+    start_run()

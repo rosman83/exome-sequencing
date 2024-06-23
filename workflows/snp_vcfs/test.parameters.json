@@ -1,0 +1,5 @@
+{
+    "annotated_vcf_path": "s3://omics-staging/annotated_vcfs/annotated_snps.vcf",
+    "aws_region": "us-east-1",
+    "ecr_registry": "339712841657.dkr.ecr.us-east-1.amazonaws.com"
+  }

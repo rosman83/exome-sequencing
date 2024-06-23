@@ -1,0 +1,3 @@
+engine: WDL
+name: snpeff_annotate_vcf_files
+main: main.wdl

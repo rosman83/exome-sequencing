@@ -1,0 +1,6 @@
+{
+    "filtered_vcf_path": "s3://omics-staging/filtered_vcfs/filtered_snps.vcf",
+    "filtered_vcf_index_path": "s3://omics-staging/filtered_vcfs/filtered_snps.vcf.tbi",
+    "aws_region": "us-east-1",
+    "ecr_registry": "339712841657.dkr.ecr.us-east-1.amazonaws.com"
+  }

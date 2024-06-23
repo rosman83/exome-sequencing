@@ -1,0 +1,18 @@
+{
+    "input_vcf_path": {
+      "description": "Path to the input VCF file",
+      "optional": false
+    },
+    "input_vcf_index_path": {
+      "description": "Path to the input VCF index file",
+      "optional": false
+    },
+    "ecr_registry": {
+      "description": "ECR registry for container images (e.g. <account-id>.dkr.ecr.<region>.amazonaws.com",
+      "optional": false
+    },
+    "aws_region": {
+      "description": "AWS region (e.g. us-east-1). must match where source data is located and where workflow is executed",
+      "optional": false
+    }
+  }
