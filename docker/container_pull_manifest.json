@@ -4,6 +4,7 @@
         "public.ecr.aws/aws-genomics/broadinstitute/genomes-in-the-cloud:2.5.7-2021-06-09_16-47-48Z-corretto-11",
         "public.ecr.aws/docker/library/python:3.9",
         "public.ecr.aws/ubuntu/ubuntu:20.04",
-        "public.ecr.aws/biocontainers/bcftools:1.20--h8b25389_0"
+        "public.ecr.aws/biocontainers/bcftools:1.20--h8b25389_0",
+        "public.ecr.aws/biocontainers/snpeff:5.0--0"
     ]
 }

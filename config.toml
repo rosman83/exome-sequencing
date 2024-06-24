@@ -13,7 +13,7 @@ region = "us-east-1"
 # S3 Bucket Name
 # - the base name of the S3 bucket and a dash and the account ID, same as the bottom of this file, where the input data and the output data will be stored. If the bucket does not exist, the program will automatically create it. This should be in the format "s3://bucket-name"/.../..." where "bucket-name" is the name of the bucket.
 # IMPORTANT: S3 buckets must be globally unique, if you get an S3 error, try changing the bucket name to something else that is unique across all AWS users globally.
-bucket = "omics-output-339712841657"
+bucket = "omics-staging"
 
 # Account ID for the AWS account
 # - this can be found in the dashboard by clicking on the account name in the top right corner and looking at the dropdown. It is the 12 digit number without dashes.

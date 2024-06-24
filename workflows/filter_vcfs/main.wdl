@@ -2,23 +2,20 @@ version 1.0
 
 workflow FilterVCF {
     input {
-        String input_vcf_path
-        String input_vcf_index_path
+        File input_vcf_path
         String ecr_registry
         String aws_region
     }
 
-    String src_bucket_name = "omics-staging"
-    String filtered_vcf_output_path = "s3://" + src_bucket_name + "/filtered_vcfs/filtered_snps.vcf.gz"
-    String filtered_vcf_index_output_path = filtered_vcf_output_path + ".tbi"
     String bcftools_docker = ecr_registry + "/ecr-public/biocontainers/bcftools:1.20--h8b25389_0"
+
+    # Get the base name of the input VCF file
+    String input_vcf_basename = basename(input_vcf_path, ".vcf.gz")
 
     call FilterVCFTask {
         input:
             input_vcf = input_vcf_path,
-            input_vcf_index = input_vcf_index_path,
-            output_vcf_path = filtered_vcf_output_path,
-            output_vcf_index_path = filtered_vcf_index_output_path,
+            output_vcf_basename = input_vcf_basename,
             docker_image = bcftools_docker
     }
 
@@ -30,16 +27,17 @@ workflow FilterVCF {
 
 task FilterVCFTask {
     input {
-        String input_vcf
-        String input_vcf_index
-        String output_vcf_path
-        String output_vcf_index_path
+        File input_vcf
+        String output_vcf_basename
         String docker_image
     }
 
     command {
-        bcftools filter -e 'FORMAT/AD[1] < 3' ~{input_vcf} -Oz -o ~{output_vcf_path}
-        bcftools index ~{output_vcf_path}
+        set -euo pipefail
+        echo "Filtering VCF file using bcftools..." >&2
+        bcftools filter -e 'FORMAT/AD[0:1] < 3' ~{input_vcf} -Oz -o ~{output_vcf_basename}.filtered.vcf.gz
+        echo "Indexing filtered VCF file..." >&2
+        bcftools index ~{output_vcf_basename}.filtered.vcf.gz
     }
 
     runtime {
@@ -49,7 +47,7 @@ task FilterVCFTask {
     }
 
     output {
-        File output_vcf = "~{output_vcf_path}"
-        File output_vcf_index = "~{output_vcf_index_path}"
+        File output_vcf = "~{output_vcf_basename}.filtered.vcf.gz"
+        File output_vcf_index = "~{output_vcf_basename}.filtered.vcf.gz.csi"
     }
 }

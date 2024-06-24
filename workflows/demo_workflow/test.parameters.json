@@ -1,5 +1,5 @@
 {
-    "input_vcf_path": "s3://omics-staging/vcfs/local/out.g.vcf.gz",
+    "input_text_path": "s3://omics-staging/reference/demo.txt",
     "aws_region": "us-east-1",
     "ecr_registry": "339712841657.dkr.ecr.us-east-1.amazonaws.com"
   }

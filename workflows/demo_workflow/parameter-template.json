@@ -1,6 +1,6 @@
 {
-    "input_vcf_path": {
-      "description": "Path to the input VCF file",
+    "input_text_path": {
+      "description": "Path to the input text file",
       "optional": false
     },
     "ecr_registry": {
